@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public ParticleSystem groundTrail;
     public float speedModifier;
 
     [Header("Ground")]
@@ -154,5 +155,28 @@ public class PlayerMovement : MonoBehaviour
         }
 
         dashes--;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Mud"))
+        {
+            groundTrail.gameObject.SetActive(true);
+            speed /= 2;
+        }
+
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Mud"))
+        {
+            groundTrail.gameObject.SetActive(false);
+            speed *= 2;
+        }
     }
 }
