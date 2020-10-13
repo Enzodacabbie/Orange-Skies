@@ -134,6 +134,8 @@ public class PlayerMovement : MonoBehaviour
     {
         float dashTime = dashDuration;
 
+        dashes--;
+
         //ternary operator. if facing right, dashDir is Vector2.right, otherwise, it's left.
         Vector2 dashDir = facingRight ? Vector2.left : Vector2.right;
 
@@ -153,21 +155,51 @@ public class PlayerMovement : MonoBehaviour
             //the next frame
             yield return null;
         }
+    }
 
-        dashes--;
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        //cache the other object's tag for efficiency
+        string tag = collision.gameObject.tag;
+
+        //bounce should only be used on triggers, might change in the future - V.P
+        if (tag == "Bounce")
+        {
+            print("bounced");
+
+            //bounce half jumpHeight
+            rb.velocity = new Vector2(rb.velocity.x, Mathf.Sqrt(jumpHeight * -2f * GRAVITY));
+
+            //replenish dashes if the player didn't have any
+            if (dashes == 0)
+            {
+                print("replinished dashes");
+                dashes++;
+            }
+        }
+        //some enemies use a trigger
+        else if (tag == "Enemy")
+        {
+            Die();
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Mud"))
+        //cache the other object's tag for efficiency
+        string tag = collision.gameObject.tag;
+
+        //move half speed when on mud blocks (also spawn a particle effect)
+        if (tag == "Mud")
         {
+            print("stepped in mud");
             groundTrail.gameObject.SetActive(true);
             speed /= 2;
         }
-
-        if (collision.gameObject.CompareTag("Enemy"))
+        //some enemies use an actual collider
+        else if (tag == "Enemy")
         {
-            Destroy(gameObject);
+            Die();
         }
     }
 
@@ -178,5 +210,11 @@ public class PlayerMovement : MonoBehaviour
             groundTrail.gameObject.SetActive(false);
             speed *= 2;
         }
+    }
+
+    public void Die()
+    {
+        print("died to enemy");
+        Destroy(gameObject);
     }
 }

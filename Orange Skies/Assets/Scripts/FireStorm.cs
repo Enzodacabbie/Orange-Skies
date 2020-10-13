@@ -8,6 +8,7 @@ public class FireStorm : MonoBehaviour
 
     private void Update()
     {
+        //move to the right at a constant speed
         transform.Translate(Vector2.right * speed * Time.deltaTime);
     }
 }
