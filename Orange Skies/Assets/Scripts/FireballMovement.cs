@@ -63,13 +63,14 @@ public class FireballMovement : MoveWhenLoaded
 
         //wait a bit before turning off the flash sprite
         yield return new WaitForSeconds(flashTime);
-        beginFlash.SetActive(false);
+        Destroy(beginFlash);
         moving = true;
     }
 
     private void OnDestroy()
     {
         //for some reason this is buggy
+        StopCoroutine(BeginFall());
         Destroy(beginFlash);
     }
 }

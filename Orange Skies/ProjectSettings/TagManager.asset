@@ -8,6 +8,8 @@ TagManager:
   - Enemy
   - Bounce
   - Loader
+  - Storm
+  - Fire
   layers:
   - Default
   - TransparentFX
@@ -18,8 +20,8 @@ TagManager:
   - 
   - 
   - Ground
-  - 
-  - 
+  - Fire
+  - Wolf
   - 
   - 
   - 

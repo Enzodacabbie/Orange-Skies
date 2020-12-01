@@ -11,4 +11,17 @@ public class FireStorm : MonoBehaviour
         //move to the right at a constant speed
         transform.Translate(Vector2.right * speed * Time.deltaTime);
     }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            collision.gameObject.GetComponent<PlayerMovement>().Die();
+        }
+    }
+
+    public void speedUp()
+    {
+        speed *= 4;
+    }
 }

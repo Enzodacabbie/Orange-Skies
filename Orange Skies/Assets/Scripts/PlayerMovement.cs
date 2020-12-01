@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public ParticleSystem groundTrail;
+    public GameEvent gameOver;
+
+    public ParticleSystem warp;
+    public ParticleSystem death;
     public float speedModifier;
 
     [Header("Ground")]
@@ -32,12 +35,15 @@ public class PlayerMovement : MonoBehaviour
     private int dashes;
 
     Rigidbody2D rb;
+    Animator anim;
 
     //runs before game starts
     private void Awake()
     {
         //grab a reference to the rigidbody before the game starts
         rb = GetComponent<Rigidbody2D>();
+
+        anim = GetComponent<Animator>();
 
         //get the force of gravity from the physics menu
         GRAVITY = Physics2D.gravity.y;
@@ -87,6 +93,8 @@ public class PlayerMovement : MonoBehaviour
         //moves player horizontally
         rb.velocity = new Vector2(Input.GetAxis("Horizontal") * speed, rb.velocity.y);
 
+        anim.SetFloat("speed", Mathf.Abs(rb.velocity.x));
+
         //if player has jumps, you can jump
         if (Input.GetKeyDown("up") && jumps > 0)
         {
@@ -96,6 +104,8 @@ public class PlayerMovement : MonoBehaviour
                 //physics equation.
                 //upwards velocity = square root of (jump height * -2 * gravity)
                 rb.velocity = new Vector2(rb.velocity.x, Mathf.Sqrt(jumpHeight * -2f * GRAVITY));
+
+                anim.SetTrigger("jump");
             }
             
             //if you fell off a ledge and you jump, do essentially a double-jump
@@ -106,6 +116,8 @@ public class PlayerMovement : MonoBehaviour
 
             jumps--;
         }
+
+        anim.SetBool("grounded", grounded);
     }
 
     //flips player to the other side
@@ -132,6 +144,8 @@ public class PlayerMovement : MonoBehaviour
     //then contact me and i'll do my best to do an alternative.
     IEnumerator Dash()
     {
+        Instantiate(warp, transform.position, Quaternion.identity);
+
         float dashTime = dashDuration;
 
         dashes--;
@@ -178,7 +192,7 @@ public class PlayerMovement : MonoBehaviour
             }
         }
         //some enemies use a trigger
-        else if (tag == "Enemy")
+        else if (tag == "Fire")
         {
             Die();
         }
@@ -193,12 +207,12 @@ public class PlayerMovement : MonoBehaviour
         if (tag == "Mud")
         {
             print("stepped in mud");
-            groundTrail.gameObject.SetActive(true);
             speed /= 2;
         }
         //some enemies use an actual collider
         else if (tag == "Enemy")
         {
+            print("???");
             Die();
         }
     }
@@ -207,7 +221,6 @@ public class PlayerMovement : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Mud"))
         {
-            groundTrail.gameObject.SetActive(false);
             speed *= 2;
         }
     }
@@ -215,6 +228,8 @@ public class PlayerMovement : MonoBehaviour
     public void Die()
     {
         print("died to enemy");
+        Instantiate(death, transform.position, Quaternion.identity);
+        gameOver.Raise();
         Destroy(gameObject);
     }
 }
